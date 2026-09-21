@@ -23,6 +23,9 @@ target_link_libraries(ss_tests PRIVATE sscore)
 add_executable(ss_benchmark benchmarks/smoke_benchmark.c)
 target_link_libraries(ss_benchmark PRIVATE sscore)
 
+add_executable(ss_long_range experiments/long_range_profile.c)
+target_link_libraries(ss_long_range PRIVATE sscore)
+
 enable_testing()
 add_test(NAME unit_and_properties COMMAND ss_tests)
 add_test(NAME smoke_benchmark COMMAND ss_benchmark)

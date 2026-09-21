@@ -1,0 +1,7 @@
+{
+  "cases": 10000,
+  "exact_concat": 10000,
+  "associative": 10000,
+  "inverse_suffix": 10000,
+  "tree_reduction": 10000
+}

@@ -6,4 +6,6 @@ void ss_xor_update(ss_word_state *s, uint32_t x);
 void ss_sum_update(ss_word_state *s, uint32_t x);
 void ss_fnv_update(ss_word_state *s, uint32_t x);
 void ss_crc_update(ss_word_state *s, uint32_t x);
+void ss_crc64_update(uint64_t *state, uint32_t x);
+void ss_poly_update(ss_word_state *s, uint32_t x);
 #endif
