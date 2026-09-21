@@ -1,0 +1,17 @@
+{
+  "hardware": {"chip": "ESP32-S3", "revision": "0.2", "flash_bytes": 16777216, "psram_bytes": 8388608, "port": "COM37", "cpu_hz": 240000000, "idf": "v5.5.1", "compiler": "xtensa-esp-elf-gcc 14.2.0"},
+  "builds": {"O3": {"app_bin_bytes": 201248, "correctness": "PASS", "long_run_events": 1000000}, "Os": {"app_bin_bytes": 190048, "correctness": "PASS", "long_run_events": 1000000}, "debug_Og": {"app_bin_bytes": 208384, "correctness": "PASS"}},
+  "O3": {
+    "C": {"state_bytes": 32, "update_cycles": 237, "forward_inverse_cycles": 505},
+    "E": {"state_bytes": 32, "update_cycles": 249, "inverse": false},
+    "H": {"state_bytes": 64, "update_cycles": 289, "combine_cycles": 146},
+    "H2": {"state_bytes": 32, "update_cycles": 106, "combine_cycles": 98},
+    "trace_mutation_trials": 10000,
+    "trace_mutation_detection": {"C": 10000, "E": 10000, "H2": 10000},
+    "stack_high_water_bytes": 1608,
+    "heap_internal_before_after": [326288, 326288],
+    "psram_free_before_after": [8386192, 8386192]
+  },
+  "tests": {"C_roundtrips": "PASS", "C_multi_rollback": "PASS", "H_associativity": "PASS", "H_chunk_composition": "PASS", "H2_algebra": "PASS", "H2_windows_16_to_16384": "PASS", "golden_vectors": "PASS"},
+  "long_run": {"events": 1000000, "result": "PASS", "ten_million_attempt": "watchdog-limited before watchdog-safe pacing"}
+}

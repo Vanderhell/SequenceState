@@ -16,7 +16,7 @@ static void emit(const char *name,const uint32_t *x,uint32_t n)
 }
 int main(void)
 {
-    uint32_t a[64],i; emit("empty",a,0U); a[0]=0U;emit("zero",a,1U);a[0]=UINT32_MAX;emit("maximum",a,1U);
+    uint32_t a[64]={0},i; emit("empty",a,0U); a[0]=0U;emit("zero",a,1U);a[0]=UINT32_MAX;emit("maximum",a,1U);
     for(i=0U;i<64U;++i) { a[i]=i&1U; } emit("alternating",a,64U);
     for(i=0U;i<64U;++i) { a[i]=i; } emit("ascending",a,64U);
     for(i=0U;i<64U;++i) { a[i]=63U-i; } emit("descending",a,64U);
