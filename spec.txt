@@ -1,0 +1,1527 @@
+# SequenceState
+
+## Research & Implementation Specification v0.1
+
+## 1. Cieľ projektu
+
+SequenceState je experimentálny deterministický systém pre reprezentáciu dlhej usporiadanej sekvencie pomocou malého stavového vektora s pevnou veľkosťou.
+
+Základná otázka projektu:
+
+> Dá sa sekvencia veľkého počtu vstupov priebežne skladať do malého fixného stavu tak, aby výsledný stav zachoval prakticky využiteľnú informáciu o poradí, vzťahoch a štruktúre sekvencie?
+
+Projekt nemá vytvárať nový LLM.
+
+Projekt nemá nahrádzať Transformer, Mambu ani neurónové siete.
+
+Prvým cieľom je vytvoriť a experimentálne overiť novú alebo užitočnú matematickú primitívu pre sekvenčný stav.
+
+---
+
+# 2. Základná predstava
+
+Máme vstupnú sekvenciu:
+
+```text
+x1, x2, x3, x4, ... xn
+```
+
+Namiesto uloženia celej sekvencie vytvárame stav:
+
+```text
+S0
+ ↓ x1
+S1
+ ↓ x2
+S2
+ ↓ x3
+S3
+ ...
+ ↓ xn
+Sn
+```
+
+Každý nový stav vznikne:
+
+```text
+S(n+1) = update(Sn, x)
+```
+
+Veľkosť `S` je počas celého spracovania konštantná.
+
+Napríklad:
+
+```text
+128 bit
+256 bit
+512 bit
+1024 bit
+```
+
+bez ohľadu na to, či sekvencia obsahovala:
+
+```text
+10
+1000
+1 000 000
+```
+
+prvkov.
+
+---
+
+# 3. Základný princíp
+
+Vstup nesmie byť iba pripočítaný k stavu.
+
+Každý vstup predstavuje matematickú transformáciu:
+
+```text
+x → T(x)
+```
+
+a:
+
+```text
+S' = T(x)(S)
+```
+
+Sekvencia:
+
+```text
+A B C D
+```
+
+je teda:
+
+```text
+S = TD(TC(TB(TA(S0))))
+```
+
+Cieľom výskumu je nájsť transformáciu alebo rodinu transformácií, ktorá zachováva čo najviac užitočných vlastností sekvencie.
+
+---
+
+# 4. Kľúčová hypotéza
+
+Existuje fixed-size stav `S` a lacná transformácia:
+
+```c
+update(S, x)
+```
+
+taká, že výsledný stav zachová viac prakticky využiteľnej štruktúry sekvencie než primitívne akumulátory typu:
+
+```text
+XOR
+SUM
+hash
+mean
+```
+
+pri porovnateľnej alebo menšej pamäťovej a výpočtovej réžii.
+
+---
+
+# 5. Druhá, silnejšia hypotéza
+
+Existuje operácia:
+
+```c
+combine(A, B)
+```
+
+taká, že:
+
+```text
+state(sequenceA + sequenceB)
+```
+
+je rovnaký alebo dostatočne ekvivalentný:
+
+```text
+combine(
+    state(sequenceA),
+    state(sequenceB)
+)
+```
+
+Formálne chceme skúmať vlastnosť:
+
+```text
+S(A || B) = combine(S(A), S(B))
+```
+
+kde `||` znamená konkatenáciu sekvencií.
+
+Toto je jedna z najdôležitejších požadovaných vlastností projektu.
+
+---
+
+# 6. Asociativita
+
+Ideálne:
+
+```text
+combine(combine(A,B),C)
+=
+combine(A,combine(B,C))
+```
+
+Teda:
+
+```text
+(A ⊗ B) ⊗ C = A ⊗ (B ⊗ C)
+```
+
+Asociativita umožňuje sekvenciu spracovať:
+
+```text
+A B C D E F G H
+```
+
+ako:
+
+```text
+AB
+CD
+EF
+GH
+```
+
+potom:
+
+```text
+ABCD
+EFGH
+```
+
+a nakoniec:
+
+```text
+ABCDEFGH
+```
+
+To umožňuje:
+
+* paralelizáciu,
+* stromovú redukciu,
+* cacheovanie podsekvencií,
+* inkrementálne spracovanie,
+* distribuované spracovanie.
+
+Asociativita nie je povinná pre prvý prototyp `update()`, ale je zásadným cieľom ďalších fáz.
+
+---
+
+# 7. Poradie musí byť zachované
+
+Systém nesmie byť komutatívny.
+
+Musí platiť:
+
+```text
+A ⊗ B != B ⊗ A
+```
+
+aspoň s veľmi vysokou pravdepodobnosťou alebo podľa presne definovaných algebraických vlastností.
+
+Napríklad:
+
+```text
+A B C
+```
+
+musí byť odlíšiteľné od:
+
+```text
+C B A
+```
+
+a:
+
+```text
+A B
+```
+
+od:
+
+```text
+B A
+```
+
+Poradie je základnou vlastnosťou sekvenčných dát.
+
+---
+
+# 8. Fixed-size stav
+
+Prvá implementácia musí podporovať minimálne:
+
+```text
+64 bit
+128 bit
+256 bit
+512 bit
+```
+
+Preferovaný hlavný experimentálny variant:
+
+```text
+256 bit
+```
+
+Príklad:
+
+```c
+typedef struct
+{
+    uint32_t lane[8];
+} ss_state256_t;
+```
+
+Stav nesmie obsahovať:
+
+* pointer na externé dáta,
+* dynamickú pamäť,
+* rastúci buffer,
+* zoznam predchádzajúcich vstupov.
+
+---
+
+# 9. Produkčné obmedzenia jadra
+
+Jadro musí byť:
+
+```text
+C11
+no heap
+no recursion
+no globals
+integer-first
+deterministic
+fixed memory
+bounded execution
+portable
+```
+
+Prvá produkčná implementácia nesmie vyžadovať:
+
+```text
+malloc
+calloc
+realloc
+free
+float
+double
+threads
+OS API
+filesystem
+network
+```
+
+Experimentálne nástroje tieto obmedzenia mať nemusia.
+
+---
+
+# 10. Determinizmus
+
+Pre:
+
+```text
+initial_state
+sequence
+algorithm_version
+```
+
+musí byť výsledok vždy identický.
+
+Platí:
+
+```text
+same input
++
+same configuration
+=
+same state
+```
+
+bez závislosti na:
+
+* platforme,
+* poradí thread scheduling,
+* locale,
+* časovaní,
+* random stave.
+
+Ak bude použitá pseudonáhodná transformácia, seed musí byť explicitný a deterministický.
+
+---
+
+# 11. Kanonický vstup
+
+Prvá verzia bude pracovať s:
+
+```c
+uint32_t symbol;
+```
+
+API:
+
+```c
+void ss256_update(
+    ss_state256_t *state,
+    uint32_t symbol);
+```
+
+Neskôr:
+
+```text
+u8
+u16
+u32
+u64
+byte span
+token ID
+event ID
+sensor sample
+```
+
+---
+
+# 12. Inicializácia
+
+Musí existovať kanonický nulový stav:
+
+```c
+void ss256_init(ss_state256_t *state);
+```
+
+alebo:
+
+```c
+ss_state256_t ss256_init(void);
+```
+
+Treba experimentálne porovnať:
+
+```text
+all-zero state
+fixed non-zero seed state
+derived initialization
+```
+
+Nulový stav nesmie byť automaticky považovaný za správny, ak vedie k degenerácii transformácie.
+
+---
+
+# 13. Update primitíva
+
+Minimálne API:
+
+```c
+void ss256_update(
+    ss_state256_t *state,
+    uint32_t symbol);
+```
+
+Požiadavky:
+
+```text
+O(1) pre jeden symbol
+fixed RAM
+bez branch-heavy logiky, ak je možné
+bez lookup tabuliek závislých od veľkosti dát
+```
+
+Kandidátne stavebné operácie:
+
+```text
+ADD
+SUB
+XOR
+rotate
+shift
+multiply
+permutation
+lane permutation
+bit mixing
+modular arithmetic
+```
+
+Použitie modulo `2^32` alebo `2^64` je povolené, ak je explicitne súčasťou definície algoritmu.
+
+---
+
+# 14. Norm-preserving experiment
+
+Pôvodná geometrická intuícia projektu vychádza z konštantnej vzdialenosti bodov na kružnici.
+
+Túto myšlienku treba experimentálne preniesť do stavového priestoru.
+
+Nemusí ísť doslova o euklidovskú normu.
+
+Treba skúmať transformácie, ktoré zachovávajú invariant:
+
+```text
+I(S') = I(S)
+```
+
+Možnosti:
+
+```text
+Hamming weight
+modular norm
+energy
+quadratic form
+lane-wise invariant
+permutation class
+```
+
+Experimentálna floating-point referencia môže skúmať aj:
+
+```text
+||S|| = constant
+```
+
+ale produkčný integer core nesmie byť na floating pointe závislý.
+
+---
+
+# 15. Rozlíšenie stavov
+
+Základný test:
+
+```text
+sequence A
+sequence B
+```
+
+musí produkovať stav:
+
+```text
+SA
+SB
+```
+
+ktorý sa dá nejakým spôsobom porovnať.
+
+Minimálne:
+
+```c
+bool ss256_equal(
+    const ss_state256_t *a,
+    const ss_state256_t *b);
+```
+
+Experimentálne:
+
+```c
+uint32_t ss256_distance(...);
+```
+
+Metrika môže byť napríklad:
+
+```text
+Hamming distance
+lane distance
+popcount XOR
+custom metric
+```
+
+---
+
+# 16. Nejde o kryptografický hash
+
+Projekt nesmie automaticky smerovať k:
+
+```text
+SHA-256(sequence)
+```
+
+Kryptografický hash výborne rozlišuje vstupy, ale zámerne ničí väčšinu štrukturálnej podobnosti.
+
+Chceme, aby podľa potreby platilo napríklad:
+
+```text
+ABCDEF
+```
+
+bolo reprezentáciou bližšie:
+
+```text
+ABCDEG
+```
+
+než:
+
+```text
+ZXCVBN
+```
+
+ak je taká vlastnosť pre daný experiment užitočná.
+
+Toto musí byť merané, nie predpokladané.
+
+---
+
+# 17. Hlavné experimentálne úlohy
+
+## 17.1 Order
+
+Rozlíšiť:
+
+```text
+ABC
+BAC
+CBA
+ACB
+```
+
+Meranie:
+
+```text
+accuracy
+collision rate
+state distance
+```
+
+---
+
+## 17.2 Membership
+
+Zo stavu určiť:
+
+```text
+bol symbol X v sekvencii?
+```
+
+Nie je požadovaná 100 % presnosť.
+
+Treba merať:
+
+```text
+true positive
+false positive
+true negative
+false negative
+```
+
+---
+
+## 17.3 Pair order
+
+Určiť:
+
+```text
+objavilo sa A pred B?
+```
+
+Rozlíšiť:
+
+```text
+... A ... B ...
+```
+
+od:
+
+```text
+... B ... A ...
+```
+
+---
+
+## 17.4 Pattern
+
+Detegovať:
+
+```text
+A B C
+```
+
+v dlhšej sekvencii.
+
+---
+
+## 17.5 Similarity
+
+Sekvencie:
+
+```text
+A = 1 2 3 4 5 6 7 8
+B = 1 2 3 4 5 6 7 9
+C = 91 77 42 11 55 19 3 200
+```
+
+Ideálne:
+
+```text
+distance(SA, SB)
+<
+distance(SA, SC)
+```
+
+---
+
+## 17.6 Long-range information
+
+Vložiť marker:
+
+```text
+X
+```
+
+na začiatok veľmi dlhej sekvencie:
+
+```text
+X random random ... 1 000 000 položiek
+```
+
+a zistiť, či jeho informácia zostáva v stave detekovateľná.
+
+---
+
+## 17.7 Next-symbol prediction
+
+Sekvencie generované podľa pravidla:
+
+```text
+ABABABAB
+ABCABCABC
+123412341234
+```
+
+Zo stavu predikovať ďalší symbol.
+
+Toto môže byť prvý most smerom k ML.
+
+---
+
+# 18. Dĺžky sekvencií
+
+Benchmark musí minimálne testovať:
+
+```text
+1
+2
+4
+8
+16
+32
+64
+128
+256
+1 024
+4 096
+16 384
+65 536
+262 144
+1 048 576
+```
+
+Dôležité je sledovať, pri akej dĺžke sa informácia začne rozpadať.
+
+---
+
+# 19. Veľkosť abecedy
+
+Testovať minimálne:
+
+```text
+2
+4
+16
+256
+65 536
+2^32 symbolov
+```
+
+Nie všetky experimenty musia použiť všetky veľkosti.
+
+---
+
+# 20. Baselines
+
+Každý výsledok musí byť porovnaný minimálne s:
+
+```text
+XOR accumulator
+SUM accumulator
+CRC
+rolling hash
+non-cryptographic hash
+Bloom filter
+Count-Min Sketch, kde dáva zmysel
+```
+
+V ďalšej fáze:
+
+```text
+VSA/HDC
+small recurrent state
+small GRU/RNN
+simple SSM
+```
+
+Bez baseline nie je možné tvrdiť, že nový mechanizmus má hodnotu.
+
+---
+
+# 21. Hash baseline
+
+Hash musí byť použitý hlavne ako kontrola:
+
+```text
+dokáže algoritmus iba rozlišovať sekvencie?
+```
+
+Ak nový algoritmus zvláda iba:
+
+```text
+sequence → unique-looking state
+```
+
+ale nevie poskytovať štrukturálne informácie, pravdepodobne sme vytvorili iba ďalší hash.
+
+To samo o sebe nie je cieľom projektu.
+
+---
+
+# 22. Combine
+
+Druhá fáza musí zaviesť:
+
+```c
+ss_state256_t ss256_combine(
+    const ss_state256_t *left,
+    const ss_state256_t *right);
+```
+
+Požadovaný experiment:
+
+```text
+A = sequence[0..499]
+B = sequence[500..999]
+
+SA = state(A)
+SB = state(B)
+
+SC = combine(SA, SB)
+
+SD = state(A || B)
+```
+
+Merať:
+
+```text
+SC == SD
+```
+
+alebo mieru ich ekvivalencie.
+
+Ideálny výsledok:
+
+```text
+SC == SD bit-exact
+```
+
+Nie je to však povinné pre prvé experimentálne návrhy.
+
+---
+
+# 23. Metadata problému
+
+Ak `combine()` potrebuje vedieť:
+
+```text
+length(A)
+length(B)
+```
+
+je to povolené.
+
+Stav potom môže byť:
+
+```c
+typedef struct
+{
+    uint32_t lane[8];
+    uint64_t length;
+} ss_state256_t;
+```
+
+Treba však jasne merať režijné náklady.
+
+---
+
+# 24. Random access nie je cieľom v0.1
+
+V0.1 nemusí umožniť:
+
+```text
+daj mi presný symbol číslo 785231
+```
+
+Fixed-size lossy stav to vo všeobecnosti nedokáže.
+
+Prvým cieľom sú agregované a štrukturálne vlastnosti.
+
+---
+
+# 25. Reverzibilita
+
+Úplná reverzibilita:
+
+```text
+state → pôvodná sekvencia
+```
+
+nie je požiadavkou.
+
+Pre ľubovoľne dlhú sekvenciu a fixed-size stav by bola bezstratová reverzibilita informačne nemožná.
+
+Môžeme však skúmať:
+
+```text
+lokálnu reverzibilitu
+invertible update
+symbol removal
+prefix removal
+state difference
+```
+
+napríklad:
+
+```c
+ss256_remove_last(state, symbol);
+```
+
+ak to algebra umožní.
+
+---
+
+# 26. Query layer
+
+Ak základný stav funguje, vznikne samostatná experimentálna vrstva:
+
+```c
+score = ss256_query(state, query);
+```
+
+Query môže byť:
+
+```text
+symbol
+pair
+pattern
+state
+```
+
+Príklady:
+
+```text
+contains(X)
+A_before_B
+similar_to(S2)
+pattern_likelihood(ABC)
+```
+
+Query API nesmie byť súčasťou stabilného core, kým nebude jasné, ktoré operácie sú matematicky opodstatnené.
+
+---
+
+# 27. ML vrstva
+
+ML integrácia je až neskoršia fáza.
+
+Primitíva sa najprv testuje samostatne.
+
+Neskôr môže byť:
+
+```text
+sequence
+   ↓
+SequenceState
+   ↓
+fixed vector
+   ↓
+tiny MLP
+   ↓
+classification
+```
+
+alebo:
+
+```text
+stream
+ ↓
+SequenceState
+ ↓
+classifier
+```
+
+To umožní otestovať, či sa z vytvoreného stavu dokáže malá neurónová sieť naučiť čítať informácie.
+
+---
+
+# 28. Embedded cieľ
+
+Potenciálny praktický cieľ:
+
+```text
+MCU
+sensor stream
+protocol stream
+event stream
+```
+
+napríklad:
+
+```text
+100 000 udalostí
+       ↓
+32 B state
+       ↓
+anomaly / classification / signature
+```
+
+bez ukladania celej histórie.
+
+Cieľová platforma môže neskôr zahŕňať:
+
+```text
+Cortex-M
+ESP32
+RISC-V MCU
+desktop reference
+```
+
+---
+
+# 29. Výkon
+
+Merať minimálne:
+
+```text
+cycles / update
+ns / update
+bytes state
+bytes working RAM
+throughput
+```
+
+Preferovaný cieľ prvých primitív:
+
+```text
+< 100 jednoduchých integer operácií / symbol
+```
+
+Nie je to acceptance criterion, iba orientačný cieľ.
+
+Najskôr musí fungovať matematika.
+
+---
+
+# 30. Žiadna predčasná optimalizácia
+
+Poradie práce:
+
+```text
+1. matematický kandidát
+2. correctness
+3. informačné testy
+4. baseline comparison
+5. až potom performance optimization
+```
+
+Algoritmus nesmie byť zachovaný iba preto, že je rýchly.
+
+---
+
+# 31. Collision testing
+
+Pre veľké množstvo krátkych sekvencií merať:
+
+```text
+exact state collisions
+near collisions
+distance distribution
+```
+
+Testovať:
+
+```text
+random sequences
+structured sequences
+permutations
+repeated patterns
+adversarial patterns
+all-zero
+all-same-symbol
+alternating symbols
+```
+
+---
+
+# 32. Avalanche nie je automaticky výhoda
+
+Kryptografický hash chce:
+
+```text
+1-bit change
+→
+úplne iný output
+```
+
+SequenceState nemusí.
+
+Treba experimentovať medzi:
+
+```text
+silné miešanie
+```
+
+a:
+
+```text
+zachovanie podobnosti
+```
+
+Príliš veľký avalanche efekt môže zničiť štrukturálnu informáciu.
+
+Príliš malý môže vytvárať kolízie a degeneráciu.
+
+---
+
+# 33. Kandidátne algebraické rodiny
+
+Experimenty môžu skúšať:
+
+### A. Modular transforms
+
+```text
+S' = A*S + B(x) mod 2^w
+```
+
+### B. Rotate/XOR/Add
+
+```text
+S' = ROT(S, f(x)) XOR g(x)
+```
+
+### C. Lane permutation
+
+```text
+permute lanes
+mix symbol
+rotate
+```
+
+### D. Matrix-like integer transform
+
+Malé implicitné matice bez všeobecného matrix multiply.
+
+### E. Reversible permutations
+
+Každý symbol vyberá bijektívnu transformáciu.
+
+### F. Norm/invariant-preserving transforms
+
+Transformácie udržiavajú zvolenú invariantnú veličinu.
+
+Žiadna rodina nie je vopred preferovaný víťaz.
+
+---
+
+# 34. Geometrický experiment
+
+Samostatná vetva môže skúmať pôvodnú myšlienku.
+
+Symbol predstavuje smerový transform:
+
+```text
+S → Tsymbol(S)
+```
+
+pričom transformácia pohybuje stavom po diskrétnom analógu:
+
+```text
+circle
+sphere
+hypersphere
+```
+
+Cieľ:
+
+```text
+bounded state geometry
++
+order-sensitive movement
++
+cheap composition
+```
+
+Treba ho hodnotiť rovnakými testami ako ostatné kandidáty.
+
+---
+
+# 35. Dataset generation
+
+V prvej fáze nepoužívať natural language datasety.
+
+Použiť syntetické datasety, kde presne poznáme ground truth.
+
+Príklady:
+
+```text
+random
+periodic
+Markov
+nested patterns
+long-range dependency
+rare marker
+ordered pairs
+reversed sequence
+mutated sequence
+```
+
+Tak sa dá presne zistiť, čo primitíva zachováva.
+
+---
+
+# 36. Reprodukovateľnosť
+
+Každý experiment musí zaznamenať:
+
+```text
+algorithm
+version
+state width
+dataset generator
+seed
+sequence length
+alphabet size
+compiler
+optimization flags
+result
+```
+
+Každý zlyhaný test musí byť reprodukovateľný cez seed.
+
+---
+
+# 37. Repository layout
+
+Odporúčaná štruktúra:
+
+```text
+SequenceState/
+│
+├── core/
+│   ├── include/
+│   └── src/
+│
+├── candidates/
+│   ├── candidate_a/
+│   ├── candidate_b/
+│   └── candidate_c/
+│
+├── baselines/
+│   ├── xor/
+│   ├── sum/
+│   ├── rolling_hash/
+│   ├── bloom/
+│   └── vsa/
+│
+├── tests/
+│   ├── unit/
+│   ├── determinism/
+│   ├── collision/
+│   └── differential/
+│
+├── experiments/
+│   ├── order/
+│   ├── membership/
+│   ├── pattern/
+│   ├── similarity/
+│   ├── long_range/
+│   └── prediction/
+│
+├── benchmarks/
+│
+├── tools/
+│
+└── research/
+```
+
+---
+
+# 38. Candidate lifecycle
+
+Každý matematický kandidát musí dostať jeden zo stavov:
+
+```text
+CANDIDATE
+ACCEPTED
+REJECTED
+REDUNDANT
+WORSE_THAN_BASELINE
+```
+
+REJECTED kandidáty sa nemažú.
+
+Musí zostať dôvod odmietnutia.
+
+---
+
+# 39. Acceptance Phase 1
+
+Prvý kandidát pokračuje ďalej iba ak:
+
+```text
+deterministic PASS
+no heap PASS
+fixed state PASS
+order sensitivity PASS
+collision tests PASS podľa definovaného limitu
+performance sane
+```
+
+a zároveň preukáže aspoň jednu vlastnosť, ktorú obyčajný hash neposkytuje.
+
+---
+
+# 40. Acceptance Phase 2
+
+Kandidát musí na minimálne jednej experimentálnej úlohe dosiahnuť lepší trade-off:
+
+```text
+accuracy / memory / operations
+```
+
+než jednoduchý baseline.
+
+Nestačí byť iba odlišný.
+
+Musí byť prakticky užitočný.
+
+---
+
+# 41. Acceptance Phase 3
+
+Ak existuje `combine()`:
+
+```text
+combine(state(A), state(B))
+```
+
+musí byť experimentálne porovnané s:
+
+```text
+state(A || B)
+```
+
+na:
+
+```text
+random data
+structured data
+large sequences
+different partition boundaries
+```
+
+---
+
+# 42. Failure criteria
+
+Projekt sa môže ukončiť alebo daný smer odmietnuť, ak:
+
+```text
+funguje iba ako hash
+stráca poradie
+informácia mizne po veľmi krátkej sekvencii
+potrebuje príliš veľký stav
+combine nie je použiteľný
+baseline je vždy lepší
+výpočet je výrazne drahší bez informačnej výhody
+```
+
+Negatívny výsledok je platný výskumný výsledok.
+
+---
+
+# 43. Čo projekt nesmie tvrdiť
+
+Bez dôkazov sa nesmie tvrdiť:
+
+```text
+new neural architecture
+LLM replacement
+infinite memory
+lossless compression
+unlimited context
+O(1) arbitrary retrieval
+```
+
+Každé tvrdenie musí byť podložené konkrétnym experimentom.
+
+---
+
+# 44. Prvý implementačný milestone
+
+Milestone M1:
+
+```text
+C11 project skeleton
+256-bit state
+3–5 candidate update functions
+XOR baseline
+SUM baseline
+rolling hash baseline
+order benchmark
+collision benchmark
+similarity benchmark
+determinism tests
+performance benchmark
+```
+
+Bez ML.
+
+Bez Python training.
+
+Bez dokumentačnej expanzie.
+
+---
+
+# 45. Druhý milestone
+
+M2:
+
+```text
+vybrať najlepší kandidát
+membership test
+pair-order test
+pattern test
+long-range retention
+state widths 64–1024 bit
+large sequence testing
+```
+
+Výsledkom musí byť rozhodnutie:
+
+```text
+KEEP
+MODIFY
+REJECT
+```
+
+---
+
+# 46. Tretí milestone
+
+M3:
+
+```text
+combine()
+chunk reduction
+tree reduction
+parallel reduction experiments
+partition invariance
+```
+
+Toto je kritická fáza.
+
+Ak sa podarí silný `combine()`, význam projektu výrazne rastie.
+
+---
+
+# 47. Štvrtý milestone
+
+M4:
+
+```text
+tiny ML classifier
+```
+
+Použiť stav ako vstup do malej siete.
+
+Napríklad:
+
+```text
+SequenceState 256 bit
+        ↓
+small MLP
+        ↓
+classification
+```
+
+Porovnať:
+
+```text
+raw handcrafted features
+SequenceState
+VSA
+small RNN
+```
+
+---
+
+# 48. Piaty milestone
+
+M5 iba ak predchádzajúce fázy prejdú:
+
+```text
+streaming sensor data
+protocol data
+text/token experiments
+edge inference
+MCU benchmark
+```
+
+LLM integrácia stále nie je požiadavkou.
+
+---
+
+# 49. Hlavné meradlo úspechu
+
+Projekt je úspešný, ak nájdeme aspoň jednu primitívu, pre ktorú platí:
+
+> Malý deterministický fixed-size stav zachováva prakticky využiteľnú štruktúru dlhej sekvencie s lepším pomerom pamäte, výpočtu alebo composability než jednoduché existujúce baseline riešenie.
+
+Nemusí ísť o univerzálnu reprezentáciu.
+
+Úzka oblasť použitia je akceptovateľná.
+
+---
+
+# 50. Výskumná filozofia
+
+Nezačíname tvrdením:
+
+> „Vytvoríme nový AI systém.“
+
+Začíname otázkou:
+
+> „Existuje matematická primitíva, ktorá dokáže robiť túto jednu vec lepšie?“
+
+Ak odpoveď bude nie:
+
+```text
+projekt splnil účel
+```
+
+Ak odpoveď bude áno:
+
+```text
+primitíva
+    ↓
+sequence engine
+    ↓
+ML experiments
+    ↓
+možná nová architektúra
+```
+
+Architektúra má vzniknúť z výsledkov experimentov.
+
+Nie naopak.
