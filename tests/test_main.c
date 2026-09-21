@@ -23,5 +23,6 @@ int main(void)
       for(uint32_t i=0U;i<8U;++i) { ss_affine512_update(&hwhole,i); }
       ss_affine512_combine(&hleft,&hright,&hcombined);ok&=check(ss_affine512_equal(&hwhole,&hcombined),"affine H combine");
       ss_affine512_inverse(&hright,&hinv);ss_affine512_combine(&hwhole,&hinv,&hremoved);ok&=check(ss_affine512_equal(&hleft,&hremoved),"affine H suffix inverse"); }
+    { ss_state256_t reversible; ss256_init(&reversible); for(uint32_t i=0U;i<10000U;++i) { ss_state256_t before=reversible; const uint32_t symbol=i*UINT32_C(2654435761); ss_candidate_update(SS_CANDIDATE_C,&reversible,symbol); ss_candidate_c_inverse(&reversible,symbol); ok&=check(ss256_equal(&before,&reversible),"candidate C inverse"); } }
     printf("%s\n",ok?"PASS unit determinism properties":"FAIL"); return ok?0:1;
 }

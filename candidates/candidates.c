@@ -21,3 +21,15 @@ void ss_candidate_update(ss_candidate_id id, ss_state256_t *s, uint32_t x)
     else if (id == SS_CANDIDATE_E) { const uint32_t p=(x^k)&7U; for(uint32_t i=0U;i<8U;++i)s->lane[i]=ss_rotl32(s->lane[(i+p)&7U]+k,i+p); }
     else { for (uint32_t i=0U;i<8U;++i)s->lane[i]+=ss_rotl32(k^s->lane[(i+1U)&7U],i*3U); }
 }
+
+void ss_candidate_c_inverse(ss_state256_t *s, uint32_t x)
+{
+    const uint32_t k = mix(x + UINT32_C(0x9e3779b9) * 3U);
+    const uint32_t inverse_multiplier = UINT32_C(0x0e8b2f51);
+    uint32_t transformed[8];
+    for (uint32_t i=0U;i<8U;++i) transformed[i]=s->lane[i];
+    transformed[0]=s->lane[6]; transformed[3]=s->lane[0]; transformed[6]=s->lane[3];
+    for (uint32_t i=0U;i<8U;++i) {
+        s->lane[i]=ss_rotl32(transformed[i]*inverse_multiplier,32U-((i*7U+x)&31U))^k;
+    }
+}
