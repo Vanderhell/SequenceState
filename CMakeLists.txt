@@ -15,6 +15,7 @@ add_library(sscore STATIC
   core/src/sequence_state.c
   candidates/candidates.c
   candidates/affine_h.c
+  candidates/h2.c
   baselines/baselines.c)
 target_include_directories(sscore PUBLIC core/include candidates baselines)
 
@@ -26,6 +27,15 @@ target_link_libraries(ss_benchmark PRIVATE sscore)
 
 add_executable(ss_long_range experiments/long_range_profile.c)
 target_link_libraries(ss_long_range PRIVATE sscore)
+
+add_executable(ss_survivor_golden experiments/survivor_golden.c)
+target_link_libraries(ss_survivor_golden PRIVATE sscore)
+
+add_executable(ss_rollback_profile experiments/rollback_profile.c)
+target_link_libraries(ss_rollback_profile PRIVATE sscore)
+
+add_executable(ss_survivor_benchmark experiments/survivor_benchmark.c)
+target_link_libraries(ss_survivor_benchmark PRIVATE sscore)
 
 enable_testing()
 add_test(NAME unit_and_properties COMMAND ss_tests)

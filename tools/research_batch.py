@@ -41,8 +41,7 @@ def update_words(words, x, kind):
         for i in range(n): words[i] ^= rot(k + i * 0x45D9F3B, i * 4)
     elif kind == 4:
         p = (x ^ k) % n
-        old = words[:]
-        for i in range(n): words[i] = rot(old[(i + p) % n] + k, i + p)
+        for i in range(n): words[i] = rot(words[(i + p) % n] + k, i + p)
     else:
         for i in range(n): words[i] = (words[i] + rot(k ^ words[(i + 1) % n], i * 3)) & MASK
 

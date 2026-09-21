@@ -13,11 +13,6 @@
       "candidate": "C",
       "cases": 100000,
       "roundtrip_pass": 100000
-    },
-    {
-      "candidate": "E",
-      "cases": 100000,
-      "roundtrip_pass": 100000
     }
   ],
   "mutation": [
@@ -301,5 +296,5 @@
       "notes": "cyclic neighbor dependency"
     }
   ],
-  "elapsed_seconds": 16.239
+  "elapsed_seconds": 14.798
 }

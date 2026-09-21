@@ -429,7 +429,7 @@
       "width": 64,
       "task": "membership",
       "algorithm": "cand4",
-      "accuracy": 0.4444444444444444
+      "accuracy": 0.5
     },
     {
       "width": 64,
@@ -501,7 +501,7 @@
       "width": 64,
       "task": "pair_order",
       "algorithm": "cand4",
-      "accuracy": 0.625
+      "accuracy": 0.5833333333333334
     },
     {
       "width": 64,
@@ -573,7 +573,7 @@
       "width": 64,
       "task": "pattern",
       "algorithm": "cand4",
-      "accuracy": 0.4861111111111111
+      "accuracy": 0.4166666666666667
     },
     {
       "width": 64,
@@ -645,7 +645,7 @@
       "width": 256,
       "task": "membership",
       "algorithm": "cand4",
-      "accuracy": 0.4444444444444444
+      "accuracy": 0.4166666666666667
     },
     {
       "width": 256,
@@ -717,7 +717,7 @@
       "width": 256,
       "task": "pair_order",
       "algorithm": "cand4",
-      "accuracy": 0.7361111111111112
+      "accuracy": 0.9583333333333334
     },
     {
       "width": 256,
@@ -789,7 +789,7 @@
       "width": 256,
       "task": "pattern",
       "algorithm": "cand4",
-      "accuracy": 0.4583333333333333
+      "accuracy": 0.5
     },
     {
       "width": 256,
@@ -918,7 +918,7 @@
     {
       "sequence": "alternating",
       "algorithm": "cand4",
-      "reverse_distance": 117
+      "reverse_distance": 127
     },
     {
       "sequence": "alternating",
@@ -948,7 +948,7 @@
     {
       "sequence": "period4",
       "algorithm": "cand4",
-      "reverse_distance": 129
+      "reverse_distance": 126
     },
     {
       "sequence": "period4",
@@ -978,7 +978,7 @@
     {
       "sequence": "increment",
       "algorithm": "cand4",
-      "reverse_distance": 118
+      "reverse_distance": 145
     },
     {
       "sequence": "increment",
@@ -1008,7 +1008,7 @@
     {
       "sequence": "reverse",
       "algorithm": "cand4",
-      "reverse_distance": 118
+      "reverse_distance": 145
     },
     {
       "sequence": "reverse",
@@ -1039,8 +1039,8 @@
     },
     {
       "algorithm": "cand4",
-      "one_replacement_distance_mean": 125.075,
-      "similarity_correlation_degenerate": 0.26307690270382544
+      "one_replacement_distance_mean": 120.63125,
+      "similarity_correlation_degenerate": 0.2472056564774663
     },
     {
       "algorithm": "cand5",
@@ -1245,27 +1245,27 @@
     {
       "algorithm": "cand4",
       "length": 16,
-      "marker_bit_accuracy": 0.625
+      "marker_bit_accuracy": 0.5833333333333334
     },
     {
       "algorithm": "cand4",
       "length": 64,
-      "marker_bit_accuracy": 0.4166666666666667
+      "marker_bit_accuracy": 0.6666666666666666
     },
     {
       "algorithm": "cand4",
       "length": 256,
-      "marker_bit_accuracy": 0.3333333333333333
+      "marker_bit_accuracy": 0.5833333333333334
     },
     {
       "algorithm": "cand4",
       "length": 1024,
-      "marker_bit_accuracy": 0.4166666666666667
+      "marker_bit_accuracy": 0.375
     },
     {
       "algorithm": "cand4",
       "length": 4096,
-      "marker_bit_accuracy": 0.4583333333333333
+      "marker_bit_accuracy": 0.5
     },
     {
       "algorithm": "cand5",
@@ -1351,5 +1351,5 @@
     "candidate_D_binary_length_10_unique_states": 2,
     "cause": "symbol-dependent lane XOR has no state feedback"
   },
-  "elapsed_seconds": 94.051
+  "elapsed_seconds": 94.105
 }

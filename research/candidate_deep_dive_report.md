@@ -1,5 +1,7 @@
 # SEQUENCESTATE CANDIDATE DEEP-DIVE REPORT
 
+This exploratory report is superseded by `reports/survivor_consolidation_report.md` where the actual in-place C implementation of E is reconciled with the earlier snapshot-model experiment.
+
 The experiments in `candidate_deep_dive.json` are property-matched: mutation signatures, trace detection, inverse roundtrips, periodic streams, and adversarial distinct-sequence collisions. Generic membership results are not used as the primary rejection criterion here.
 
 ## CANDIDATE A
@@ -15,7 +17,7 @@ The update is sequential, so wrapped lane references may observe already updated
 ### Unique properties
 
 - order-sensitive: yes
-- reversible: not established; cyclic lane dependencies prevent the simple local inverse available in C/E
+- reversible: not established; cyclic lane dependencies prevent the simple local inverse available in C
 - composition: no exact compact summary
 - diffusion: near-avalanche
 - similarity: weak; mutation distances are almost independent of edit type
@@ -131,14 +133,14 @@ The previous state is never read on the right-hand side except for the XOR with 
 
 Let `p=(x XOR k) mod 8`. Snapshot old lanes and compute:
 
-`s_i' = ROTL(old_s_(i+p mod 8) + k, i+p)`
+`s_i' = ROTL(s_(i+p mod 8) + k, i+p)` with the read occurring in the sequential in-place loop.
 
 This is a symbol-selected lane permutation followed by independent add/rotate maps. Each update is bijective for known `x`, but the accumulated final state has no compact block summary.
 
 ### Unique properties
 
 - order-sensitive: yes
-- reversible: yes; Python roundtrip `100,000/100,000`
+- reversible: not guaranteed; the cyclic in-place dependency prevents the snapshot inverse used by a different experimental variant
 - composition: no compact summary
 - locality: permutation-selected; no multiply in lane update
 - similarity: lower avalanche than C/A/B/F, but no useful metric correlation established
@@ -153,7 +155,7 @@ This is a symbol-selected lane permutation followed by independent add/rotate ma
 
 ### Application
 
-`SPECIALIZED_KEEP` as a low-cost reversible permutation/order fingerprint when lower avalanche and zero per-lane multiply are desirable. It is a plausible MCU-friendly trace signature, but C is the stronger measured detector.
+As implemented, E is a low-cost permutation/order fingerprint when lower avalanche and zero per-lane multiply are desirable. It is a plausible MCU-friendly trace signature, but C is the stronger measured detector and E has no valid rollback API.
 
 ### Limitation
 
@@ -177,12 +179,12 @@ The update is sequential with a cyclic neighbor dependency. The final lane depen
 
 ### Classification
 
-`REDUNDANT` — E is cheaper and invertible; C is invertible with stronger trace detection; H/H2 are actually composable.
+`REDUNDANT` — E is cheaper than C but is not actually invertible in the current in-place implementation; C has stronger trace detection and H/H2 provide the real algebraic operations.
 
 ## PARETO FRONT
 
 - C: exact known-symbol inverse, best trace score among A–F, 32 B.
-- E: invertible, no lane multiplies, 32 B, lowest mutation-distance scale among A–F.
+- E: no lane multiplies, 32 B, lowest mutation-distance scale among A–F, but no inverse guarantee.
 - H/H2: exact block composition, associative tree reduction, range/window algebra.
 
 The front is property-specific rather than one total ranking. A/B/F are dominated for the tested dimensions; D is rejected.
@@ -225,7 +227,7 @@ No hardware cycle or code-size measurements were available. These are operation-
 
 ## MOST IMPORTANT FINDING
 
-Candidate C deserves to survive independently of H/H2: it is a genuinely bijective known-symbol state update, has a tested C inverse, and achieved perfect controlled execution-trace detection with a 32-byte state. Candidate E is a lower-arithmetic-cost reversible alternative, but its detection result was weaker. Neither replaces H/H2 composition.
+Candidate C deserves to survive independently of H/H2: it is a genuinely bijective known-symbol state update, has a tested C inverse, and achieved perfect controlled execution-trace detection with a 32-byte state. Candidate E's actual C semantics are not reversible; its remaining value is only the lower-arithmetic permutation fingerprint, which was not enough to preserve it as a survivor.
 
 ## NEXT STEP
 

@@ -5,6 +5,8 @@
 #include "candidates.h"
 #include "baselines.h"
 #include "affine_h.h"
+#include "h2.h"
+#include "survivor_versions.h"
 
 static uint32_t rng(uint32_t *s){*s=*s*UINT32_C(1664525)+UINT32_C(1013904223);return *s;}
 static int check(int condition,const char *name){if(!condition){fprintf(stderr,"FAIL %s\n",name);return 0;}return 1;}
@@ -24,5 +26,6 @@ int main(void)
       ss_affine512_combine(&hleft,&hright,&hcombined);ok&=check(ss_affine512_equal(&hwhole,&hcombined),"affine H combine");
       ss_affine512_inverse(&hright,&hinv);ss_affine512_combine(&hwhole,&hinv,&hremoved);ok&=check(ss_affine512_equal(&hleft,&hremoved),"affine H suffix inverse"); }
     { ss_state256_t reversible; ss256_init(&reversible); for(uint32_t i=0U;i<10000U;++i) { ss_state256_t before=reversible; const uint32_t symbol=i*UINT32_C(2654435761); ss_candidate_update(SS_CANDIDATE_C,&reversible,symbol); ss_candidate_c_inverse(&reversible,symbol); ok&=check(ss256_equal(&before,&reversible),"candidate C inverse"); } }
+    { ss_h2_state_t h2a,h2b,h2whole,h2combined,h2removed; ss_h2_init(&h2a);ss_h2_init(&h2b);ss_h2_init(&h2whole);for(uint32_t i=0U;i<4U;++i){ss_h2_update(&h2a,i);ss_h2_update(&h2whole,i);}for(uint32_t i=4U;i<8U;++i){ss_h2_update(&h2b,i);ss_h2_update(&h2whole,i);}ss_h2_combine(&h2a,&h2b,&h2combined);ok&=check(ss_h2_equal(&h2whole,&h2combined),"H2 combine");ok&=check(ss_h2_remove_prefix(&h2whole,&h2a,&h2removed)&&ss_h2_equal(&h2removed,&h2b),"H2 prefix removal"); }
     printf("%s\n",ok?"PASS unit determinism properties":"FAIL"); return ok?0:1;
 }

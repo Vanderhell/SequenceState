@@ -1,0 +1,335 @@
+{
+  "versions": {
+    "C": "C-1.0",
+    "E": "E-1.0",
+    "H": "H-1.0",
+    "H2": "H2-1.0"
+  },
+  "hard_trace": [
+    {
+      "algorithm": "C",
+      "accuracy": 0.51,
+      "normal_mean": 128.265,
+      "abnormal_mean": 127.84
+    },
+    {
+      "algorithm": "E",
+      "accuracy": 0.5125,
+      "normal_mean": 116.665,
+      "abnormal_mean": 115.575
+    },
+    {
+      "algorithm": "H",
+      "accuracy": 0.5375,
+      "normal_mean": 249.135,
+      "abnormal_mean": 249.25
+    },
+    {
+      "algorithm": "H2",
+      "accuracy": 0.545,
+      "normal_mean": 99.63,
+      "abnormal_mean": 99.485
+    },
+    {
+      "algorithm": "FNV",
+      "accuracy": 0.5275,
+      "normal_mean": 16.165,
+      "abnormal_mean": 16.335
+    }
+  ],
+  "hard_trace_nearest": [
+    {
+      "algorithm": "C",
+      "nearest_normal_accuracy": 0.52,
+      "normal_mean": 104.96,
+      "abnormal_mean": 107.73
+    },
+    {
+      "algorithm": "E",
+      "nearest_normal_accuracy": 0.535,
+      "normal_mean": 67.38,
+      "abnormal_mean": 69.46
+    },
+    {
+      "algorithm": "H",
+      "nearest_normal_accuracy": 0.76,
+      "normal_mean": 107.18,
+      "abnormal_mean": 175.26
+    },
+    {
+      "algorithm": "H2",
+      "nearest_normal_accuracy": 0.755,
+      "normal_mean": 56.31,
+      "abnormal_mean": 71.94
+    },
+    {
+      "algorithm": "FNV",
+      "nearest_normal_accuracy": 0.555,
+      "normal_mean": 8.69,
+      "abnormal_mean": 9.28
+    }
+  ],
+  "C_rollback": {
+    "individual_cases": 100000,
+    "individual_pass": 100000,
+    "multi_event_cases": 100000,
+    "multi_event_pass": 100000,
+    "million_case_c_runtime": "see compiled ss_rollback_profile"
+  },
+  "algebra": [
+    {
+      "algorithm": "H",
+      "cases": 10000,
+      "exact_concat": 10000,
+      "associative": 10000,
+      "prefix_remove": 10000
+    },
+    {
+      "algorithm": "H2",
+      "cases": 10000,
+      "exact_concat": 10000,
+      "associative": 10000,
+      "prefix_remove": 10000
+    }
+  ],
+  "windows": [
+    {
+      "algorithm": "H",
+      "window": 1,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H",
+      "window": 2,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H",
+      "window": 4,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H",
+      "window": 8,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H",
+      "window": 16,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H",
+      "window": 32,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H",
+      "window": 64,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H",
+      "window": 128,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H",
+      "window": 256,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H",
+      "window": 512,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H",
+      "window": 1024,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H",
+      "window": 2048,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H",
+      "window": 4096,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H",
+      "window": 16384,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H2",
+      "window": 1,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H2",
+      "window": 2,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H2",
+      "window": 4,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H2",
+      "window": 8,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H2",
+      "window": 16,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H2",
+      "window": 32,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H2",
+      "window": 64,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H2",
+      "window": 128,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H2",
+      "window": 256,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H2",
+      "window": 512,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H2",
+      "window": 1024,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H2",
+      "window": 2048,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H2",
+      "window": 4096,
+      "cases": 12,
+      "passed": 12
+    },
+    {
+      "algorithm": "H2",
+      "window": 16384,
+      "cases": 12,
+      "passed": 12
+    }
+  ],
+  "hierarchy": [
+    {
+      "blocks": 16,
+      "comparisons": 4,
+      "identified_block": 8,
+      "expected": 8
+    },
+    {
+      "blocks": 64,
+      "comparisons": 6,
+      "identified_block": 32,
+      "expected": 32
+    },
+    {
+      "blocks": 256,
+      "comparisons": 8,
+      "identified_block": 128,
+      "expected": 128
+    },
+    {
+      "blocks": 1024,
+      "comparisons": 10,
+      "identified_block": 512,
+      "expected": 512
+    },
+    {
+      "blocks": 4096,
+      "comparisons": 12,
+      "identified_block": 2048,
+      "expected": 2048
+    },
+    {
+      "blocks": 16384,
+      "comparisons": 14,
+      "identified_block": 8192,
+      "expected": 8192
+    },
+    {
+      "blocks": 65536,
+      "comparisons": 16,
+      "identified_block": 32768,
+      "expected": 32768
+    }
+  ],
+  "collisions_cycles": [
+    {
+      "algorithm": "C",
+      "binary_collision": null,
+      "zero_symbol_cycle": null
+    },
+    {
+      "algorithm": "E",
+      "binary_collision": null,
+      "zero_symbol_cycle": {
+        "start": 125,
+        "length": 56
+      }
+    },
+    {
+      "algorithm": "H",
+      "binary_collision": null,
+      "zero_symbol_cycle": null
+    },
+    {
+      "algorithm": "H2",
+      "binary_collision": null,
+      "zero_symbol_cycle": null
+    }
+  ],
+  "elapsed_seconds": 85.395
+}

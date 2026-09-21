@@ -3,7 +3,7 @@ cand0,membership,64,0.513889
 cand1,membership,64,0.444444
 cand2,membership,64,0.458333
 cand3,membership,64,0.625000
-cand4,membership,64,0.444444
+cand4,membership,64,0.500000
 cand5,membership,64,0.444444
 H,membership,512,0.652778
 bloom,membership,64,0.930556
@@ -15,7 +15,7 @@ cand0,pair_order,64,0.527778
 cand1,pair_order,64,0.430556
 cand2,pair_order,64,0.458333
 cand3,pair_order,64,0.513889
-cand4,pair_order,64,0.625000
+cand4,pair_order,64,0.583333
 cand5,pair_order,64,0.458333
 H,pair_order,512,0.444444
 bloom,pair_order,64,0.569444
@@ -27,7 +27,7 @@ cand0,pattern,64,0.472222
 cand1,pattern,64,0.513889
 cand2,pattern,64,0.430556
 cand3,pattern,64,0.430556
-cand4,pattern,64,0.486111
+cand4,pattern,64,0.416667
 cand5,pattern,64,0.486111
 H,pattern,512,0.500000
 bloom,pattern,64,0.541667
@@ -39,7 +39,7 @@ cand0,membership,256,0.430556
 cand1,membership,256,0.527778
 cand2,membership,256,0.541667
 cand3,membership,256,0.569444
-cand4,membership,256,0.444444
+cand4,membership,256,0.416667
 cand5,membership,256,0.527778
 H,membership,512,0.638889
 bloom,membership,256,0.930556
@@ -51,7 +51,7 @@ cand0,pair_order,256,0.416667
 cand1,pair_order,256,0.500000
 cand2,pair_order,256,0.486111
 cand3,pair_order,256,0.597222
-cand4,pair_order,256,0.736111
+cand4,pair_order,256,0.958333
 cand5,pair_order,256,0.583333
 H,pair_order,512,0.500000
 bloom,pair_order,256,0.541667
@@ -63,7 +63,7 @@ cand0,pattern,256,0.430556
 cand1,pattern,256,0.472222
 cand2,pattern,256,0.555556
 cand3,pattern,256,0.541667
-cand4,pattern,256,0.458333
+cand4,pattern,256,0.500000
 cand5,pattern,256,0.486111
 H,pattern,512,0.527778
 bloom,pattern,256,0.555556

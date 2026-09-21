@@ -24,17 +24,14 @@ def candidate_c_inverse(words,x):
     return [rotr((t[i]*INV_C)&MASK,i*7+x)^k for i in range(len(t))]
 
 def candidate_e_update(words,x):
-    k=mix(x+0x9E3779B9*5); p=(x^k)%len(words); old=words[:]
-    return [rot((old[(i+p)%len(words)]+k)&MASK,i+p) for i in range(len(words))]
-
-def candidate_e_inverse(words,x):
-    k=mix(x+0x9E3779B9*5); p=(x^k)%len(words); old=[0]*len(words)
-    for i,w in enumerate(words): old[(i+p)%len(words)]=(rotr(w,i+p)-k)&MASK
-    return old
+    # Mirrors the actual C implementation: intentionally in-place and sequential.
+    k=mix(x+0x9E3779B9*5); p=(x^k)&7
+    for i in range(len(words)): words[i]=rot((words[(i+p)%len(words)]+k)&MASK,i+p)
+    return words
 
 def inverse_probe():
     rng=random.Random(20260921); rows=[]
-    for name,forward,inverse in (("C",candidate_c_update,candidate_c_inverse),("E",candidate_e_update,candidate_e_inverse)):
+    for name,forward,inverse in (("C",candidate_c_update,candidate_c_inverse),):
         passed=0; cases=100000
         for _ in range(cases):
             words=[rng.getrandbits(32) for _ in range(8)]; x=rng.getrandbits(32)
