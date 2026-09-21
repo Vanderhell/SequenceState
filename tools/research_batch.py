@@ -222,6 +222,8 @@ def main():
     result["composition"]={"H_exact_fraction":sum(x["exact"] for x in comp)/len(comp),"A_to_F_combine": "not available from vector state"}
     # Smallest regression witness for D's XOR-like degeneracy.
     result["regressions"]={"candidate_D_binary_length_10_unique_states": result["exhaustive"]["cand3"][-1]["unique"],"cause":"symbol-dependent lane XOR has no state feedback"}
+    if result["regressions"]["candidate_D_binary_length_10_unique_states"] != 2:
+        raise AssertionError("candidate D regression changed: expected exactly two binary length-10 states")
     result["elapsed_seconds"]=round(time.perf_counter()-started,3)
     root=Path(__file__).resolve().parents[1]/"research"; root.mkdir(exist_ok=True)
     (root/"research_results.json").write_text(json.dumps(result,indent=2),encoding="utf-8")
