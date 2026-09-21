@@ -1,0 +1,638 @@
+{
+  "version": "value-discovery-1",
+  "property_matrix": {
+    "A-F": "order-sensitive, fixed-memory, non-composable from final vector, hash-like distance",
+    "D": "symbol aggregate, structurally degenerate",
+    "H": "exact associative affine transform, invertible suffix/prefix",
+    "N": "exact polynomial/sum/position-moment composition, 32 bytes"
+  },
+  "execution_trace": [
+    {
+      "application": "execution_trace",
+      "algorithm": "cand0",
+      "accuracy": 0.8333333333333334,
+      "threshold": 123,
+      "normal_mean": 44,
+      "abnormal_mean": 130.33333333333334
+    },
+    {
+      "application": "execution_trace",
+      "algorithm": "cand1",
+      "accuracy": 0.8333333333333334,
+      "threshold": 118,
+      "normal_mean": 46.333333333333336,
+      "abnormal_mean": 129.33333333333334
+    },
+    {
+      "application": "execution_trace",
+      "algorithm": "cand2",
+      "accuracy": 1.0,
+      "threshold": 127,
+      "normal_mean": 38.333333333333336,
+      "abnormal_mean": 129.33333333333334
+    },
+    {
+      "application": "execution_trace",
+      "algorithm": "cand4",
+      "accuracy": 0.8333333333333334,
+      "threshold": 114,
+      "normal_mean": 41,
+      "abnormal_mean": 122
+    },
+    {
+      "application": "execution_trace",
+      "algorithm": "cand5",
+      "accuracy": 0.8333333333333334,
+      "threshold": 131,
+      "normal_mean": 45,
+      "abnormal_mean": 134.66666666666666
+    },
+    {
+      "application": "execution_trace",
+      "algorithm": "H",
+      "accuracy": 0.8333333333333334,
+      "threshold": 235,
+      "normal_mean": 80,
+      "abnormal_mean": 247
+    },
+    {
+      "application": "execution_trace",
+      "algorithm": "N",
+      "accuracy": 1.0,
+      "threshold": 100,
+      "normal_mean": 30.666666666666668,
+      "abnormal_mean": 106
+    },
+    {
+      "application": "execution_trace",
+      "algorithm": "fnv",
+      "accuracy": 0.8333333333333334,
+      "threshold": 14,
+      "normal_mean": 5.333333333333333,
+      "abnormal_mean": 16
+    },
+    {
+      "application": "execution_trace",
+      "algorithm": "bloom",
+      "accuracy": 0.6666666666666666,
+      "threshold": 3,
+      "normal_mean": 1,
+      "abnormal_mean": 3
+    },
+    {
+      "application": "execution_trace",
+      "algorithm": "pos_bloom",
+      "accuracy": 1.0,
+      "threshold": 8,
+      "normal_mean": 1,
+      "abnormal_mean": 61.666666666666664
+    }
+  ],
+  "protocol_trace": [
+    {
+      "application": "protocol_trace",
+      "algorithm": "cand0",
+      "accuracy": 1.0,
+      "threshold": 134
+    },
+    {
+      "application": "protocol_trace",
+      "algorithm": "cand1",
+      "accuracy": 1.0,
+      "threshold": 122
+    },
+    {
+      "application": "protocol_trace",
+      "algorithm": "cand2",
+      "accuracy": 1.0,
+      "threshold": 121
+    },
+    {
+      "application": "protocol_trace",
+      "algorithm": "cand4",
+      "accuracy": 1.0,
+      "threshold": 52
+    },
+    {
+      "application": "protocol_trace",
+      "algorithm": "cand5",
+      "accuracy": 1.0,
+      "threshold": 128
+    },
+    {
+      "application": "protocol_trace",
+      "algorithm": "H",
+      "accuracy": 1.0,
+      "threshold": 247
+    },
+    {
+      "application": "protocol_trace",
+      "algorithm": "N",
+      "accuracy": 1.0,
+      "threshold": 88
+    },
+    {
+      "application": "protocol_trace",
+      "algorithm": "fnv",
+      "accuracy": 1.0,
+      "threshold": 13
+    },
+    {
+      "application": "protocol_trace",
+      "algorithm": "bloom",
+      "accuracy": 0.6666666666666666,
+      "threshold": 7
+    },
+    {
+      "application": "protocol_trace",
+      "algorithm": "pos_bloom",
+      "accuracy": 1.0,
+      "threshold": 101
+    }
+  ],
+  "change_detection": [
+    {
+      "application": "change_detection",
+      "algorithm": "cand0",
+      "mutation": "single",
+      "distance": 132
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand0",
+      "mutation": "burst",
+      "distance": 132
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand0",
+      "mutation": "reorder",
+      "distance": 134
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand0",
+      "mutation": "duplicate",
+      "distance": 131
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand0",
+      "mutation": "delete",
+      "distance": 128
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand1",
+      "mutation": "single",
+      "distance": 129
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand1",
+      "mutation": "burst",
+      "distance": 142
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand1",
+      "mutation": "reorder",
+      "distance": 144
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand1",
+      "mutation": "duplicate",
+      "distance": 124
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand1",
+      "mutation": "delete",
+      "distance": 126
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand2",
+      "mutation": "single",
+      "distance": 142
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand2",
+      "mutation": "burst",
+      "distance": 140
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand2",
+      "mutation": "reorder",
+      "distance": 123
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand2",
+      "mutation": "duplicate",
+      "distance": 141
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand2",
+      "mutation": "delete",
+      "distance": 134
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand4",
+      "mutation": "single",
+      "distance": 97
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand4",
+      "mutation": "burst",
+      "distance": 114
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand4",
+      "mutation": "reorder",
+      "distance": 114
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand4",
+      "mutation": "duplicate",
+      "distance": 111
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand4",
+      "mutation": "delete",
+      "distance": 111
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand5",
+      "mutation": "single",
+      "distance": 130
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand5",
+      "mutation": "burst",
+      "distance": 122
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand5",
+      "mutation": "reorder",
+      "distance": 118
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand5",
+      "mutation": "duplicate",
+      "distance": 137
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "cand5",
+      "mutation": "delete",
+      "distance": 120
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "H",
+      "mutation": "single",
+      "distance": 252
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "H",
+      "mutation": "burst",
+      "distance": 249
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "H",
+      "mutation": "reorder",
+      "distance": 107
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "H",
+      "mutation": "duplicate",
+      "distance": 255
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "H",
+      "mutation": "delete",
+      "distance": 240
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "N",
+      "mutation": "single",
+      "distance": 87
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "N",
+      "mutation": "burst",
+      "distance": 92
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "N",
+      "mutation": "reorder",
+      "distance": 72
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "N",
+      "mutation": "duplicate",
+      "distance": 93
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "N",
+      "mutation": "delete",
+      "distance": 115
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "fnv",
+      "mutation": "single",
+      "distance": 18
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "fnv",
+      "mutation": "burst",
+      "distance": 14
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "fnv",
+      "mutation": "reorder",
+      "distance": 9
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "fnv",
+      "mutation": "duplicate",
+      "distance": 12
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "fnv",
+      "mutation": "delete",
+      "distance": 11
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "bloom",
+      "mutation": "single",
+      "distance": 0
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "bloom",
+      "mutation": "burst",
+      "distance": 14
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "bloom",
+      "mutation": "reorder",
+      "distance": 0
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "bloom",
+      "mutation": "duplicate",
+      "distance": 0
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "bloom",
+      "mutation": "delete",
+      "distance": 2
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "pos_bloom",
+      "mutation": "single",
+      "distance": 4
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "pos_bloom",
+      "mutation": "burst",
+      "distance": 12
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "pos_bloom",
+      "mutation": "reorder",
+      "distance": 12
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "pos_bloom",
+      "mutation": "duplicate",
+      "distance": 69
+    },
+    {
+      "application": "change_detection",
+      "algorithm": "pos_bloom",
+      "mutation": "delete",
+      "distance": 75
+    }
+  ],
+  "composition": [
+    {
+      "algorithm": "H",
+      "exact_concat": 1.0,
+      "associative": 1.0,
+      "state_bytes": 64
+    },
+    {
+      "algorithm": "N",
+      "exact_concat": 1.0,
+      "associative": 1.0,
+      "state_bytes": 32
+    }
+  ],
+  "sliding_windows": [
+    {
+      "algorithm": "H",
+      "window": 16,
+      "exact": true,
+      "updates": 20,
+      "recompute_events": 320,
+      "incremental_compositions": 40
+    },
+    {
+      "algorithm": "H",
+      "window": 64,
+      "exact": true,
+      "updates": 20,
+      "recompute_events": 1280,
+      "incremental_compositions": 40
+    },
+    {
+      "algorithm": "H",
+      "window": 256,
+      "exact": true,
+      "updates": 20,
+      "recompute_events": 5120,
+      "incremental_compositions": 40
+    },
+    {
+      "algorithm": "H",
+      "window": 1024,
+      "exact": true,
+      "updates": 20,
+      "recompute_events": 20480,
+      "incremental_compositions": 40
+    },
+    {
+      "algorithm": "N",
+      "window": 16,
+      "exact": true,
+      "updates": 20,
+      "recompute_events": 320,
+      "incremental_compositions": 40
+    },
+    {
+      "algorithm": "N",
+      "window": 64,
+      "exact": true,
+      "updates": 20,
+      "recompute_events": 1280,
+      "incremental_compositions": 40
+    },
+    {
+      "algorithm": "N",
+      "window": 256,
+      "exact": true,
+      "updates": 20,
+      "recompute_events": 5120,
+      "incremental_compositions": 40
+    },
+    {
+      "algorithm": "N",
+      "window": 1024,
+      "exact": true,
+      "updates": 20,
+      "recompute_events": 20480,
+      "incremental_compositions": 40
+    }
+  ],
+  "localization": [
+    {
+      "application": "tree_mismatch_localization",
+      "blocks": 16,
+      "state_comparisons": 4,
+      "identified_block": 8,
+      "raw_block_reads_if_replay": 16
+    },
+    {
+      "application": "tree_mismatch_localization",
+      "blocks": 64,
+      "state_comparisons": 6,
+      "identified_block": 32,
+      "raw_block_reads_if_replay": 64
+    },
+    {
+      "application": "tree_mismatch_localization",
+      "blocks": 256,
+      "state_comparisons": 8,
+      "identified_block": 128,
+      "raw_block_reads_if_replay": 256
+    },
+    {
+      "application": "tree_mismatch_localization",
+      "blocks": 1024,
+      "state_comparisons": 10,
+      "identified_block": 512,
+      "raw_block_reads_if_replay": 1024
+    }
+  ],
+  "deduplication": [
+    {
+      "application": "chunk_deduplication",
+      "algorithm": "cand0",
+      "exact_duplicate_mean": 0,
+      "one_mutation_mean": 129.06,
+      "local_reorder_mean": 127.22
+    },
+    {
+      "application": "chunk_deduplication",
+      "algorithm": "cand1",
+      "exact_duplicate_mean": 0,
+      "one_mutation_mean": 127.38,
+      "local_reorder_mean": 129.53
+    },
+    {
+      "application": "chunk_deduplication",
+      "algorithm": "cand2",
+      "exact_duplicate_mean": 0,
+      "one_mutation_mean": 126.93,
+      "local_reorder_mean": 127.45
+    },
+    {
+      "application": "chunk_deduplication",
+      "algorithm": "cand4",
+      "exact_duplicate_mean": 0,
+      "one_mutation_mean": 105.06,
+      "local_reorder_mean": 104
+    },
+    {
+      "application": "chunk_deduplication",
+      "algorithm": "cand5",
+      "exact_duplicate_mean": 0,
+      "one_mutation_mean": 127.97,
+      "local_reorder_mean": 128.47
+    },
+    {
+      "application": "chunk_deduplication",
+      "algorithm": "H",
+      "exact_duplicate_mean": 0,
+      "one_mutation_mean": 253.28,
+      "local_reorder_mean": 108.61
+    },
+    {
+      "application": "chunk_deduplication",
+      "algorithm": "N",
+      "exact_duplicate_mean": 0,
+      "one_mutation_mean": 96.18,
+      "local_reorder_mean": 63.9
+    },
+    {
+      "application": "chunk_deduplication",
+      "algorithm": "fnv",
+      "exact_duplicate_mean": 0,
+      "one_mutation_mean": 16.87,
+      "local_reorder_mean": 15.5
+    },
+    {
+      "application": "chunk_deduplication",
+      "algorithm": "bloom",
+      "exact_duplicate_mean": 0,
+      "one_mutation_mean": 2.67,
+      "local_reorder_mean": 0
+    },
+    {
+      "application": "chunk_deduplication",
+      "algorithm": "pos_bloom",
+      "exact_duplicate_mean": 0,
+      "one_mutation_mean": 3.26,
+      "local_reorder_mean": 11.59
+    }
+  ],
+  "elapsed_seconds": 7.03
+}

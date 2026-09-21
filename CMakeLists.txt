@@ -14,6 +14,7 @@ endif()
 add_library(sscore STATIC
   core/src/sequence_state.c
   candidates/candidates.c
+  candidates/affine_h.c
   baselines/baselines.c)
 target_include_directories(sscore PUBLIC core/include candidates baselines)
 
