@@ -32,5 +32,5 @@ finally:
 if summary:
     text = data.decode("utf-8", errors="replace")
     for line in re.split(r"\r?\n", text):
-        if re.search(r"chip=|idf=|TEST |BENCH |LONG |HEAP final|DONE", line):
+        if re.search(r"chip=|idf=|TEST |BENCH |LONG |HEAP final|STACK |DONE", line):
             print(line)

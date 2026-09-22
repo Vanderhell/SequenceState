@@ -1,13 +1,11 @@
 idf_component_register(
   SRCS
-    "sequence_state_hw_main.c"
-    "../../../core/src/sequence_state.c"
-    "../../../candidates/candidates.c"
-    "../../../candidates/affine_h.c"
-    "../../../candidates/h2.c"
+    "sequence_state_release_main.c"
+    "../../../core/src/trace.c"
+    "../../../core/src/compose.c"
+    "../../../core/src/range.c"
   INCLUDE_DIRS
-    "../../../core/include"
-    "../../../candidates"
+    "../../../include"
   PRIV_REQUIRES esp_timer esp_hw_support esp_psram spi_flash heap freertos
 )
 

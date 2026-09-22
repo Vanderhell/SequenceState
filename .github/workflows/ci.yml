@@ -1,0 +1,30 @@
+name: sequence-state-ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  gcc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DSS_BUILD_RESEARCH=OFF -DCMAKE_C_FLAGS="-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Werror"
+      - run: cmake --build build
+      - run: ctest --test-dir build --output-on-failure
+
+  clang:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release -DSS_BUILD_RESEARCH=OFF -DCMAKE_C_FLAGS="-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Werror"
+      - run: cmake --build build
+      - run: ctest --test-dir build --output-on-failure
+
+  msvc:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cmake -S . -B build -G "Visual Studio 17 2022" -DSS_BUILD_RESEARCH=OFF
+      - run: cmake --build build --config Release
+      - run: ctest --test-dir build -C Release --output-on-failure

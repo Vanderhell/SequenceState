@@ -1,31 +1,105 @@
-#include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include "sequence_state.h"
-#include "candidates.h"
-#include "baselines.h"
-#include "affine_h.h"
-#include "h2.h"
-#include "survivor_versions.h"
+#include <stdio.h>
+#include "sequence_state/trace.h"
+#include "sequence_state/compose.h"
+#include "sequence_state/range.h"
 
-static uint32_t rng(uint32_t *s){*s=*s*UINT32_C(1664525)+UINT32_C(1013904223);return *s;}
-static int check(int condition,const char *name){if(!condition){fprintf(stderr,"FAIL %s\n",name);return 0;}return 1;}
+static uint32_t rng(uint32_t *state)
+{
+    *state = *state * UINT32_C(1664525) + UINT32_C(1013904223);
+    return *state;
+}
+
+static int check(int condition, const char *name)
+{
+    if (!condition) fprintf(stderr, "FAIL %s\n", name);
+    return condition;
+}
+
+static int test_trace(void)
+{
+    int ok = 1;
+    ss_trace_state_t state, before;
+    ok &= check(ss_trace_init(&state) == 0, "trace init");
+    for (uint32_t i = 0U; i < 100000U; ++i) {
+        before = state;
+        const uint32_t symbol = i * UINT32_C(2654435761);
+        ok &= check(ss_trace_update(&state, symbol) == 0, "trace update");
+        ok &= check(ss_trace_inverse_update(&state, symbol) == 0 && ss_trace_equal(&state, &before), "trace inverse");
+    }
+    ok &= check(ss_trace_init(NULL) == -1, "trace null init");
+    ok &= check(ss_trace_update(NULL, 0U) == -1, "trace null update");
+    ok &= check(ss_trace_inverse_update(NULL, 0U) == -1, "trace null inverse");
+    ok &= check(ss_trace_equal(NULL, &state) == 0, "trace null equal");
+    ok &= check(ss_trace_hamming_distance(NULL, &state) == UINT32_MAX, "trace null distance");
+    ss_trace_init(&state); ss_trace_update(&state, 0U);
+    ok &= check(state.lane[0] == UINT32_C(0x77f3f57d) && state.lane[7] == UINT32_C(0xdfcc5644), "trace frozen vector");
+    return ok;
+}
+
+static int test_compose(void)
+{
+    int ok = 1;
+    ss_compose_state_t left, right, whole, combined, nested, inverse, identity;
+    ok &= check(ss_compose_init(&left) == 0 && ss_compose_init(&right) == 0 && ss_compose_init(&whole) == 0, "compose init");
+    for (uint32_t i = 0U; i < 4U; ++i) { ss_compose_update(&left, i); ss_compose_update(&whole, i); }
+    for (uint32_t i = 4U; i < 8U; ++i) { ss_compose_update(&right, i); ss_compose_update(&whole, i); }
+    ok &= check(ss_compose_combine(&left, &right, &combined) == 0 && ss_compose_equal(&whole, &combined), "compose concatenate");
+    ss_compose_state_t left_copy = left;
+    ok &= check(ss_compose_combine(&left_copy, &right, &left_copy) == 0 && ss_compose_equal(&left_copy, &combined), "compose left alias");
+    ss_compose_state_t right_copy = right;
+    ok &= check(ss_compose_combine(&left, &right_copy, &right_copy) == 0 && ss_compose_equal(&right_copy, &combined), "compose right alias");
+    ss_compose_init(&left); ss_compose_init(&right); ss_compose_init(&whole);
+    for (uint32_t i = 0U; i < 2U; ++i) { ss_compose_update(&left, i); ss_compose_update(&whole, i); }
+    for (uint32_t i = 2U; i < 4U; ++i) { ss_compose_update(&right, i); ss_compose_update(&whole, i); }
+    ss_compose_state_t third, ab, bc;
+    ss_compose_init(&third); ss_compose_update(&third, 4U); ss_compose_update(&whole, 4U);
+    ss_compose_combine(&left, &right, &ab); ss_compose_combine(&ab, &third, &nested);
+    ss_compose_combine(&right, &third, &bc); ss_compose_combine(&left, &bc, &combined);
+    ok &= check(ss_compose_equal(&nested, &combined), "compose associative");
+    ok &= check(ss_compose_inverse(&right, &inverse) == 0, "compose inverse operation");
+    ok &= check(ss_compose_init(&identity) == 0 && ss_compose_combine(&left, &identity, &combined) == 0 && ss_compose_equal(&left, &combined), "compose identity");
+    ok &= check(ss_compose_combine(NULL, &right, &combined) == -1, "compose null combine");
+    ss_compose_init(&whole); ss_compose_update(&whole, 0U);
+    ok &= check(whole.a[0] == UINT32_C(0x00000001) && whole.b[0] == UINT32_C(0x00000000)
+                && whole.a[1] == UINT32_C(0x03f9caa5) && whole.b[1] == UINT32_C(0x80c5e7d3), "compose frozen vector");
+    return ok;
+}
+
+static int test_range(void)
+{
+    int ok = 1;
+    ss_range_state_t left, right, whole, combined, suffix, alias;
+    ok &= check(ss_range_init(&left) == 0 && ss_range_init(&right) == 0 && ss_range_init(&whole) == 0, "range init");
+    for (uint32_t i = 0U; i < 4U; ++i) { ss_range_update(&left, i); ss_range_update(&whole, i); }
+    for (uint32_t i = 4U; i < 8U; ++i) { ss_range_update(&right, i); ss_range_update(&whole, i); }
+    ok &= check(ss_range_combine(&left, &right, &combined) == 0 && ss_range_equal(&whole, &combined), "range concatenate");
+    ok &= check(ss_range_remove_prefix(&whole, &left, &suffix) == 1 && ss_range_equal(&suffix, &right), "range prefix removal");
+    alias = whole;
+    ok &= check(ss_range_remove_prefix(&alias, &left, &alias) == 1 && ss_range_equal(&alias, &right), "range output alias");
+    ss_range_state_t left_copy = left;
+    ok &= check(ss_range_combine(&left_copy, &right, &left_copy) == 0 && ss_range_equal(&left_copy, &combined), "range left alias");
+    ss_range_state_t too_long = combined;
+    ss_range_update(&too_long, 8U);
+    ok &= check(ss_range_remove_prefix(&whole, &too_long, &suffix) == 0, "range invalid prefix");
+    ok &= check(ss_range_combine(NULL, &right, &combined) == -1, "range null combine");
+    ss_range_init(&whole); ss_range_update(&whole, 0U);
+    ok &= check(whole.length == 1U && whole.polynomial == UINT64_C(0x0000000000000000), "range frozen vector");
+    return ok;
+}
+
+static int test_determinism(void)
+{
+    ss_trace_state_t a, b;
+    uint32_t seed_a = UINT32_C(123456789), seed_b = UINT32_C(123456789);
+    int ok = ss_trace_init(&a) == 0 && ss_trace_init(&b) == 0;
+    for (uint32_t i = 0U; i < 10000U; ++i) { ss_trace_update(&a, rng(&seed_a)); ss_trace_update(&b, rng(&seed_b)); }
+    return check(ok && ss_trace_equal(&a, &b), "trace determinism");
+}
+
 int main(void)
 {
-    int ok=1; ss_state256_t a,b,c; uint32_t seed=UINT32_C(123456789);
-    ss256_init(&a); b=a; for(uint32_t i=0U;i<10000U;++i)ss256_update(&a,rng(&seed)); seed=UINT32_C(123456789);for(uint32_t i=0U;i<10000U;++i)ss256_update(&b,rng(&seed));
-    ok&=check(ss256_equal(&a,&b),"determinism"); ss256_init(&c);ss256_update(&c,1U);ok&=check(!ss256_equal(&c,&a),"nontrivial update");
-    for(int id=0;id<SS_CANDIDATE_COUNT;++id){ss_candidate_init((ss_candidate_id)id,&a);ss_candidate_init((ss_candidate_id)id,&b);for(uint32_t i=0U;i<256U;++i){uint32_t x=rng(&seed);ss_candidate_update((ss_candidate_id)id,&a,x);ss_candidate_update((ss_candidate_id)id,&b,x);}ok&=check(ss256_equal(&a,&b),ss_candidate_name((ss_candidate_id)id));}
-    ss_word_state x={0U},y={0U},p={1U}; uint64_t crc64=0U;for(uint32_t i=0U;i<100U;++i){ss_xor_update(&x,i);ss_sum_update(&y,i);ss_poly_update(&p,i);ss_crc64_update(&crc64,i);}ok&=check(x.value!=y.value&&p.value!=0U&&crc64!=0U,"baselines");
-    ss256_init(&a); for (uint32_t i=0U;i<4U;++i) ss256_update(&a,i); ss256_update(&a,UINT32_MAX);
-    ok&=check(a.lane[0]==UINT32_C(0xfb5d25d0)&&a.lane[1]==UINT32_C(0x3f120094)&&a.lane[2]==UINT32_C(0xa89056e6)&&a.lane[3]==UINT32_C(0x8ad91cbb)&&a.lane[4]==UINT32_C(0x392b8c5d)&&a.lane[5]==UINT32_C(0x8b325f98)&&a.lane[6]==UINT32_C(0xa96eb1cd)&&a.lane[7]==UINT32_C(0x157c8d3),"golden vector");
-    { ss_affine512_t hleft,hright,hwhole,hcombined,hinv,hremoved; ss_affine512_init(&hleft);ss_affine512_init(&hright);ss_affine512_init(&hwhole);
-      for(uint32_t i=0U;i<4U;++i) { ss_affine512_update(&hleft,i); }
-      for(uint32_t i=4U;i<8U;++i) { ss_affine512_update(&hright,i); }
-      for(uint32_t i=0U;i<8U;++i) { ss_affine512_update(&hwhole,i); }
-      ss_affine512_combine(&hleft,&hright,&hcombined);ok&=check(ss_affine512_equal(&hwhole,&hcombined),"affine H combine");
-      ss_affine512_inverse(&hright,&hinv);ss_affine512_combine(&hwhole,&hinv,&hremoved);ok&=check(ss_affine512_equal(&hleft,&hremoved),"affine H suffix inverse"); }
-    { ss_state256_t reversible; ss256_init(&reversible); for(uint32_t i=0U;i<10000U;++i) { ss_state256_t before=reversible; const uint32_t symbol=i*UINT32_C(2654435761); ss_candidate_update(SS_CANDIDATE_C,&reversible,symbol); ss_candidate_c_inverse(&reversible,symbol); ok&=check(ss256_equal(&before,&reversible),"candidate C inverse"); } }
-    { ss_h2_state_t h2a,h2b,h2whole,h2combined,h2removed; ss_h2_init(&h2a);ss_h2_init(&h2b);ss_h2_init(&h2whole);for(uint32_t i=0U;i<4U;++i){ss_h2_update(&h2a,i);ss_h2_update(&h2whole,i);}for(uint32_t i=4U;i<8U;++i){ss_h2_update(&h2b,i);ss_h2_update(&h2whole,i);}ss_h2_combine(&h2a,&h2b,&h2combined);ok&=check(ss_h2_equal(&h2whole,&h2combined),"H2 combine");ok&=check(ss_h2_remove_prefix(&h2whole,&h2a,&h2removed)&&ss_h2_equal(&h2removed,&h2b),"H2 prefix removal"); }
-    printf("%s\n",ok?"PASS unit determinism properties":"FAIL"); return ok?0:1;
+    const int ok = test_trace() && test_compose() && test_range() && test_determinism();
+    printf("%s\n", ok ? "PASS production properties" : "FAIL production properties");
+    return ok ? 0 : 1;
 }
