@@ -2,12 +2,7 @@ if(NOT DEFINED GOLDEN_ROOT)
   message(FATAL_ERROR "GOLDEN_ROOT is required")
 endif()
 
-file(READ "${GOLDEN_ROOT}/tests/golden_vectors.txt" golden_text)
-string(REPLACE "\r\n" "\n" golden_text "${golden_text}")
-string(REPLACE "\r" "\n" golden_text "${golden_text}")
-set(normalized_path "${CMAKE_CURRENT_BINARY_DIR}/sequence_state_golden_vectors.normalized.txt")
-file(WRITE "${normalized_path}" "${golden_text}")
-file(SHA256 "${normalized_path}" actual_hash)
+file(SHA256 "${GOLDEN_ROOT}/tests/golden_vectors.txt" actual_hash)
 file(READ "${GOLDEN_ROOT}/tests/golden_vectors.sha256" recorded)
 string(REGEX MATCH "^[0-9A-Fa-f]+" expected_hash "${recorded}")
 

@@ -1,0 +1,2 @@
+tests/golden_vectors.txt text eol=lf
+tests/golden_vectors.sha256 text eol=lf
