@@ -82,13 +82,14 @@ whole firmware sizes.
 
 ## Release blockers
 
-* `LICENSE` is absent. No license was invented during this audit, so a public
-  v0.1.0 release cannot be legally positioned as ready.
+None known after adding the standard Apache License 2.0 text and a separate
+`NOTICE` file for `Vanderhell`.
 
 ## Verdict
 
-`NOT_READY` for a public v0.1.0 release decision. The production core has no
-known correctness defect from the executed audit, but the missing license is
-an explicit release blocker. Sanitizer and native coverage-guided fuzz results
-remain unavailable due to toolchain/environment limitations and are recorded,
-not represented as passes.
+`READY` for a v0.1.0 release decision. The production core has no known
+correctness defect from the executed audit, the repository has standard Apache
+License 2.0 text, and ownership is recorded separately in `NOTICE`. Sanitizer
+and native coverage-guided fuzz results remain unavailable due to
+toolchain/environment limitations; these are documented non-blocking
+limitations and are not represented as passes.

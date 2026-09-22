@@ -76,6 +76,9 @@ endif()
 enable_testing()
 add_test(NAME unit_and_properties COMMAND ss_tests)
 add_test(NAME property_stress COMMAND ss_property_stress)
+add_test(NAME golden_vectors
+  COMMAND ${CMAKE_COMMAND} -DGOLDEN_ROOT=${CMAKE_CURRENT_SOURCE_DIR}
+          -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/verify_golden.cmake)
 add_test(NAME example_trace_c COMMAND ss_example_trace_c)
 add_test(NAME example_compose_h COMMAND ss_example_compose_h)
 add_test(NAME example_sliding_h2 COMMAND ss_example_sliding_h2)
